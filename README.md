@@ -1,31 +1,20 @@
-# XAU AI Trader V1.0
+# XAU AI Trader Backend V0.5
 
-Applicazione Android signal-only per XAUUSD con analisi ICT/SMC, Entry/SL/TP, backtest, diario e notifiche.
+Backend signal-only: riceve un feed XAUUSD autorizzato, persiste OHLC, aggrega M1 in M5/M15/H1/H4 e inoltra le barre via WebSocket all'app.
 
-**Importante:** l'app non apre, modifica o chiude operazioni.
-
-## Struttura
-- `app/` — Android Kotlin/Jetpack Compose
-- `backend/` — FastAPI + SQLite + WebSocket
-- `IctSmcEngine.kt` — motore deterministico
-- `MultiTimeframeEngine.kt` — confluenza H4/H1/M15/M5
-- `Backtester.kt` — backtest
-- `SignalMonitorService.kt` — monitoraggio foreground e alert
-
-## Avvio backend
+## Avvio
 ```bash
 cd backend
 python -m venv .venv
-# attivare venv
+source .venv/bin/activate
 pip install -r requirements.txt
 cp .env.example .env
+# compilare URL/API key del provider autorizzato
 uvicorn app.main:app --host 0.0.0.0 --port 8080
 ```
 
-Il feed upstream deve essere adattato al contratto:
-`symbol,time,open,high,low,close,volume`.
+## Contratto upstream
+Il provider adapter deve produrre JSON con:
+`symbol,time,open,high,low,close,volume` dove `time` è Unix seconds.
 
-## Android
-I default `10.0.2.2` funzionano con l'emulatore Android quando il backend gira sulla macchina host. Su un telefono reale usare l'indirizzo HTTPS/WSS pubblico del server.
-
-Per Android 13+ le notifiche richiedono `POST_NOTIFICATIONS`; l'app lo richiede all'avvio.
+Il backend NON esegue ordini e non contiene credenziali broker.
